@@ -26,21 +26,23 @@ const Listofpatient = ({ navigation }) => {
         .catch((error) => {
           console.log(error);
         });
-
+ 
       return () => {};
     }, [])
   );
-
+ 
   const handleLogin = () => {
     navigation.navigate("Addpatient");
-
+ 
   };
-  const Patientrecord = () => {
-    navigation.navigate("Patientrecord");
-
+  const Patientrecord = (id) => {
+    navigation.navigate("Patientrecord",{
+      id: id
+    });
+ 
   };
-
-
+ 
+ 
   const handleDelete = (id)=>{
     Alert.alert(
       "Delete Confirmation", // Alert title
@@ -83,7 +85,7 @@ const Listofpatient = ({ navigation }) => {
     );
   }
   
-
+ 
   return (
     <View style={styles.container}>
       <View style={styles.inputContainer}>
@@ -99,8 +101,8 @@ const Listofpatient = ({ navigation }) => {
         renderItem={({ item }) => (
           <View style={styles.inputContainer}>
             <View style={styles.nameContainer}>
-            <Icon name="eye"  onPress={Patientrecord}size={20} color="#000" style={styles.icon} />
-            <Text style={styles.name}>{item.first_name}</Text>
+            <Icon name="eye"  onPress={() => Patientrecord(item._id)}size={20} color="#000" style={styles.icon} />
+            <Text style={styles.name}>{item.first_name} {item?.critical && <Icon name="medkit" size={20} color="red" style={styles.icon} />}</Text>
             </View>
             <Icon name="trash" size={15} onPress={()=> handleDelete(item._id)}/>
           </View>
@@ -128,7 +130,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
   },
-
+ 
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -175,5 +177,6 @@ const styles = StyleSheet.create({
     alignItems:'center'
   }
 });
-
+ 
 export default Listofpatient;
+ 

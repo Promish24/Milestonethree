@@ -1,65 +1,87 @@
-import React from 'react';
-import { View,  Button, StyleSheet, TextInput, name, setName,Text,TouchableOpacity  } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import React ,{useState}from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { View,  Button, StyleSheet, TextInput, name, setName,Text,TouchableOpacity, ScrollView, ActivityIndicator  } from 'react-native';
 
-    const Patientrecord = ({navigation}) => {
-
-    const handleLogin = () => {
-        navigation.navigate('AddPatientrecord')
+    const Patientrecord = ( {route, navigation}) => {
+      const { id } = route.params;
+    const handleAddRecordView = () => {
+        navigation.navigate('AddPatientrecord', {
+          id:id
+        })
       };
-
+      const [isLoading, setLoading]  = useState(true)
+      const [patientData, setPatientData] = useState({});
+     
+      useFocusEffect(
+        React.useCallback(() => {
+          fetch(`http://127.0.0.1:4000/patients/${id}`) // Replace with your API endpoint
+            .then((response) => {
+              return response.json();
+            })
+            .then((data) => {
+              setLoading(false)
+              setPatientData(data.patientData);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+          return () => {};
+        }, [])
+      );
+    
   return (
-    <View style={styles.container}>
-    <Text style={styles.boldText}>Patient Detail</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Promish"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Scarbrough"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="437-254-6711"
-      />
-    <Text style={styles.boldText}>Health Records</Text>
-    <Text>Blood Oxygen level</Text>
-    <TextInput
-        style={styles.input}
-        placeholder="98% sp02"
-      />
-    <Text>Blood Pressure level</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="120/85 mmHg"
-      />
-     <Text>Heartbeat</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="77bpm/min"
-      />
-      <Text>Respiratory Rate</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="120/85 mmHg"
-      />
-      <Text>Note for doctor</Text>
-      <TextInput
-        style={styles.noteinput}
-        placeholder="Takerest"
-      />
-      <TouchableOpacity
-        onPress={handleLogin}
-        style={styles.Button}
-      >
-        <Text style={styles.buttonText}>Add Record</Text>
-      </TouchableOpacity>
+    <ScrollView style={styles.container}>
+      {
+        isLoading ? <ActivityIndicator></ActivityIndicator> : 
+        <View>
+          <Text style={styles.boldText}>Patient Detail</Text>
+            <Text>
+              {patientData.first_name}
+            </Text>
+            <Text>
+              {patientData.gender}
+            </Text>
+            <Text>
+              {patientData.phone}
+            </Text>
+    
+         <Text style={styles.boldText}>Health Records</Text>
 
-    </View>
+          <View>
+            
+          {patientData.records && patientData.records.length > 0 ? patientData.records.map((item,id) => (
+          <View key={id} style={styles.eachRecord}>
+            <Text>Blood Oxygen level</Text>
+            <Text>{item.bloodOxygenLevel}</Text>
+            <Text>Blood Pressure level</Text>
+             <Text>{item.bloodPressure}</Text>
+                 <Text>Heartbeat</Text>
+                             <Text>{item.heartBeatRate}</Text>
+                      <Text>Respiratory Rate</Text>
+                      <Text>{item.respiratoryRate}</Text>
+                      
+            </View>
+            )) : 
+            <Text>
+              There are no records.</Text>}
+
+              <TouchableOpacity
+                        onPress={handleAddRecordView}
+                        style={styles.Button}
+                      >
+                        <Text style={styles.buttonText}>Add Record</Text>
+              </TouchableOpacity>
+      
+          </View>
+        </View>
+      }
+    </ScrollView>
   );
 }
 const styles = StyleSheet.create({
+  eachRecord:{
+    marginVertical: 10
+  },
     container: {
       flex: 1,
       padding: 16,
@@ -93,6 +115,7 @@ const styles = StyleSheet.create({
     boldText: {
       fontWeight: 'bold', // Set the text to be bold
       fontSize: 16, // Adjust the font size as needed
+      marginTop:10,
     },
     line: {
       width: '100%',               // Set the width of the line
