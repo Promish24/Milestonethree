@@ -28,7 +28,6 @@ const Login = ({navigation}) => {
       body: JSON.stringify(data),
     })
       .then((response) => {
-        console.log('first',response)
         return response.json();
       })
       .then((data) => {
